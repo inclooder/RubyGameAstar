@@ -222,6 +222,38 @@ class Game
 	def handle_keys ev
 	end
 
+
+	def get_map_position_from_screen coord
+		cx = coord[0]
+		cy = coord[1]
+
+		(0...@map_width).each do |x|
+			(0...@map_height).each do |y|
+				x_pos = x * @cell_width
+				y_pos = y * @cell_height
+				r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
+				if r.collide_point? cx, cy
+					return [x, y]
+				end
+			end
+		end
+
+		return nil
+
+	end
+
+	def handle_mouse_click ev
+		map_point = get_map_position_from_screen ev.pos
+		unless map_point.nil?
+			ix = map_point[0]
+			iy = map_point[1]
+			@map[iy][ix] = 1
+			create_nodes_map
+			@mypath = find_path
+		end
+
+	end
+
 	def update
 
 		@queue.each do |ev|
@@ -231,6 +263,8 @@ class Game
 				exit
 			when KeyDownEvent
 				handle_keys ev
+			when MouseDownEvent
+				handle_mouse_click ev
 			end
 		end
 
