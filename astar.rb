@@ -22,39 +22,22 @@ class Node
 end
 
 
-TTF.setup
-$font = TTF.new "DejaVuSans-Bold.ttf", 8
-
-
 
 class Game
-	BG_COLOR = 'black'
+	BG_COLOR = 'white'
 
 	def initialize
-		@map_width = 27
-		@map_height = 20
+		@map_width = 30
+		@map_height = 30
+		@map=[]
 
-		@map = [[0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,1,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,1,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,1,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[1,1,1,1,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]]
+		(0...@map_width).each do |x|
+			(0...@map_height).each do |y|
+				@map[y]=[] if @map[y].nil?
+				@map[y][x] = 0
+			end
+		end
+
 
 		@start_point = [4,5]
 		@end_point = [24, 8]
@@ -63,9 +46,10 @@ class Game
 		create_nodes_map
 		@mypath = find_path
 
-		@screen = Screen.new [1000,800], 0, [HWSURFACE, DOUBLEBUF]
+		@screen = Screen.new [800,600], 0, [HWSURFACE, DOUBLEBUF]
 		@cell_width = @screen.size[0]/@map_width
 		@cell_height = @screen.size[1]/@map_height
+		@crad = @cell_height/2
 		@queue = EventQueue.new
 		@clock = Clock.new
 		@clock.target_framerate = 30
@@ -97,7 +81,6 @@ class Game
 			close_list << p
 
 			if p.x == @end_point[0] and p.y == @end_point[1]
-				puts "koniec"
 				break
 			end
 
@@ -166,39 +149,18 @@ class Game
 				node = @nodes_map[x][y]
 				
 				
+				c = r.center()
 
-				if node.walkable
-					@screen.draw_box_s r.topleft, r.bottomright, 'white'
-				else
-					@screen.draw_box_s r.topleft, r.bottomright, 'black'
+				unless node.walkable
+					@screen.draw_circle_s(c, @crad, 'gray')
 				end
 
 
 				if(@mypath.include? node)
-					@screen.draw_box_s r.topleft, r.bottomright, 'green'
+					@screen.draw_circle_s(c, @crad, 'green')
 				end
 
-				@screen.draw_box r.topleft, r.bottomright, 'black'
 
-				@text_surf = $font.render "(#{x},#{y})", true, [0,0,0]
-				rt = @text_surf.make_rect
-				rt.topleft = [r.topleft[0] + 2, r.topleft[1] + 1]
-				@text_surf.blit @screen, rt
-
-				@text_surf = $font.render "c = #{node.cost.inspect}", true, [0,0,0]
-				rt = @text_surf.make_rect
-				rt.topleft = [r.topleft[0] + 2, r.topleft[1] + 9]
-
-				@text_surf.blit @screen, rt
-
-				begin
-				@text_surf = $font.render "p = (#{node.parent.x},#{node.parent.y})", true, [0,0,0]
-				rt = @text_surf.make_rect
-				rt.topleft = [r.topleft[0] + 2, r.topleft[1] + 18]
-
-				@text_surf.blit @screen, rt
-				rescue
-				end
 
 
 
@@ -247,7 +209,13 @@ class Game
 		unless map_point.nil?
 			ix = map_point[0]
 			iy = map_point[1]
-			@map[iy][ix] = 1
+			
+			val = @map[iy][ix]
+		        if val == 1
+				@map[iy][ix] = 0
+			else
+				@map[iy][ix] = 1
+			end
 			create_nodes_map
 			@mypath = find_path
 		end
