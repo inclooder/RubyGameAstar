@@ -27,8 +27,8 @@ class Game
 	BG_COLOR = 'white'
 
 	def initialize
-		@map_width = 30
-		@map_height = 30
+		@map_width = 40
+		@map_height = 40
 		@map=[]
 
 		(0...@map_width).each do |x|
@@ -55,6 +55,18 @@ class Game
 		@clock.target_framerate = 30
 	end
 
+	def point_neighbors(px, py)
+		neighbors_coordinates = []
+		neighbors_coordinates << [px + 1, py]
+		neighbors_coordinates << [px - 1, py]
+		neighbors_coordinates << [px, py + 1]
+		neighbors_coordinates << [px, py - 1]
+		neighbors_coordinates << [px + 1, py + 1]
+		neighbors_coordinates << [px - 1, py - 1]
+		neighbors_coordinates << [px - 1, py + 1]
+		neighbors_coordinates << [px + 1, py - 1]
+		return neighbors_coordinates
+	end
 
 	def find_path
 		open_list = []
@@ -86,14 +98,13 @@ class Game
 
 			#przylegle pola
 			avil_moves = []
-			avil_moves << @nodes_map[p.x + 1][p.y]
-			avil_moves << @nodes_map[p.x - 1][p.y]
-			avil_moves << @nodes_map[p.x][p.y + 1]
-			avil_moves << @nodes_map[p.x][p.y - 1]
-			avil_moves << @nodes_map[p.x + 1][p.y + 1]
-			avil_moves << @nodes_map[p.x - 1][p.y - 1]
-			avil_moves << @nodes_map[p.x - 1][p.y + 1]
-			avil_moves << @nodes_map[p.x + 1][p.y - 1]
+
+			point_neighbors(p.x, p.y).each do |pn|
+				if pn[0] < @map_width and pn[0] > 0 and pn[1] < @map_height and pn[1] > 0
+						move = @nodes_map[pn[0]][pn[1]]
+						avil_moves << move 
+				end
+			end
 
 			avil_moves.each do |m|
 				unless m.nil?
@@ -157,12 +168,10 @@ class Game
 
 
 				if(@mypath.include? node)
-					@screen.draw_circle_s(c, @crad, 'green')
+					@screen.draw_circle_s(c, @crad, 'orange')
 				end
 
-
-
-
+				@screen.draw_box(r.topleft, r.bottomright, 'black');
 
 			end
 		end

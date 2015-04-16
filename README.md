@@ -1,4 +1,5 @@
 RubyGameAstar
 =============
 
-astar test
+A* algotiyhm test
+
