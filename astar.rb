@@ -3,7 +3,7 @@ require_relative 'node'
 
 include Rubygame
 
-class Game
+class Astar
   BG_COLOR = 'white'
 
   def initialize
@@ -18,10 +18,8 @@ class Game
       end
     end
 
-
     @start_point = [4,5]
     @end_point = [24, 8]
-
 
     create_nodes_map
     @mypath = find_path
@@ -97,9 +95,7 @@ class Game
           end
         end
       end
-
     end
-
 
     path = []
 
@@ -109,7 +105,6 @@ class Game
       p = p.parent
     end
 
-
     return path
   end
 
@@ -117,7 +112,6 @@ class Game
     @nodes_map = []
     (0...@map_width).each do |x|
       @nodes_map[x] = []
-
       (0...@map_height).each do |y|
         walkable = @map[y][x] == 0
         @nodes_map[x][y] = Node.new(x, y, walkable)
@@ -130,25 +124,16 @@ class Game
       (0...@map_height).each do |y|
         x_pos = x * @cell_width
         y_pos = y * @cell_height
-
         r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
-
         node = @nodes_map[x][y]
-
-
         c = r.center()
-
         unless node.walkable
           @screen.draw_circle_s(c, @crad, 'gray')
         end
-
-
         if(@mypath.include? node)
           @screen.draw_circle_s(c, @crad, 'orange')
         end
-
         @screen.draw_box(r.topleft, r.bottomright, 'black');
-
       end
     end
   end
@@ -186,7 +171,6 @@ class Game
     end
 
     return nil
-
   end
 
   def handle_mouse_click ev
@@ -204,11 +188,9 @@ class Game
       create_nodes_map
       @mypath = find_path
     end
-
   end
 
   def update
-
     @queue.each do |ev|
       case ev
       when QuitEvent
@@ -220,7 +202,6 @@ class Game
         handle_mouse_click ev
       end
     end
-
   end
 
   def draw
@@ -230,7 +211,5 @@ class Game
   end
 end
 
-game = Game.new
+game = Astar.new
 game.run
-
-

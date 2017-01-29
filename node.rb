@@ -1,5 +1,3 @@
-include Rubygame
-
 class Node
   attr_accessor :x, :y, :parent, :walkable, :cost
   def initialize(x,y, walkable)
