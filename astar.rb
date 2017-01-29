@@ -4,20 +4,17 @@ require_relative 'field'
 
 include Rubygame
 
-class Point < Struct.new(:x, :y)
-end
-
 class Astar
   BG_COLOR = 'white'
 
   def initialize
     @map = Board.new(10, 10)
 
-    @start_point = Point.new(0, 2)
-    @end_point = Point.new(4, 8)
+    @start_point = @map.at(0, 2)
+    @end_point = @map.at(4, 8)
 
     reset_parents_and_costs
-    @mypath = find_path
+    @path = find_path
 
     @screen = Screen.new [600,600], 0, [HWSURFACE, DOUBLEBUF]
     @cell_width = @screen.size[0] / @map.width
@@ -32,12 +29,9 @@ class Astar
     open_list = []
     close_list = []
 
-    start_node = @map.at(@start_point.x, @start_point.y)
-    start_node.calc_cost(@end_point.x, @end_point.y)
+    @start_point.calc_cost(@end_point.x, @end_point.y)
 
-    end_node = @map.at(@end_point.x, @end_point.y)
-
-    open_list << start_node
+    open_list << @start_point
 
     while(open_list.size > 0)
       p = nil
@@ -71,7 +65,7 @@ class Astar
 
     path = []
 
-    p = end_node
+    p = @end_point
     while(p != nil)
       path.push p
       p = p.parent
@@ -98,7 +92,7 @@ class Astar
         unless node.walkable?
           @screen.draw_box_s(r.topleft, r.bottomright, 'gray')
         end
-        if(@mypath.include? node)
+        if(@path.include? node)
           @screen.draw_circle_s(c, @crad, 'orange')
         end
       end
@@ -141,7 +135,7 @@ class Astar
       ix, iy = map_point
       @map.at(ix, iy).toggle_walkable
       reset_parents_and_costs
-      @mypath = find_path
+      @path = find_path
     end
   end
 
