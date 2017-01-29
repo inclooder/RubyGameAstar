@@ -160,10 +160,6 @@ class Astar
     end
   end
 
-  def handle_keys ev
-  end
-
-
   def get_map_position_from_screen coord
     cx = coord[0]
     cy = coord[1]
@@ -202,8 +198,6 @@ class Astar
       when QuitEvent
         Rubygame.quit
         exit
-      when KeyDownEvent
-        handle_keys ev
       when MouseDownEvent
         handle_mouse_click ev
       end
