@@ -3,20 +3,29 @@ require_relative 'node'
 
 include Rubygame
 
+class Matrix
+  attr_reader :width, :height
+
+  def initialize(width, height)
+    @width = width
+    @height = height
+    @mat = Array.new(height) { Array.new(width, 0) }
+  end
+
+  def at(x, y)
+    @mat[y][x]
+  end
+
+  def set(x, y, val)
+    @mat[y][x] = val
+  end
+end
+
 class Astar
   BG_COLOR = 'white'
 
   def initialize
-    @map_width = 40
-    @map_height = 40
-    @map = []
-
-    (0...@map_width).each do |x|
-      (0...@map_height).each do |y|
-        @map[y]=[] if @map[y].nil?
-        @map[y][x] = 0
-      end
-    end
+    @map = Matrix.new(40, 40)
 
     @start_point = [4,5]
     @end_point = [24, 8]
@@ -25,8 +34,8 @@ class Astar
     @mypath = find_path
 
     @screen = Screen.new [800,600], 0, [HWSURFACE, DOUBLEBUF]
-    @cell_width = @screen.size[0] / @map_width
-    @cell_height = @screen.size[1] / @map_height
+    @cell_width = @screen.size[0] / @map.width
+    @cell_height = @screen.size[1] / @map.height
     @crad = @cell_height / 2
     @queue = EventQueue.new
     @clock = Clock.new
@@ -78,7 +87,7 @@ class Astar
       avil_moves = []
 
       point_neighbors(p.x, p.y).each do |pn|
-        if pn[0] < @map_width and pn[0] > 0 and pn[1] < @map_height and pn[1] > 0
+        if pn[0] < @map.width && pn[0] > 0 && pn[1] < @map.height && pn[1] > 0
           move = @nodes_map[pn[0]][pn[1]]
           avil_moves << move 
         end
@@ -110,18 +119,18 @@ class Astar
 
   def create_nodes_map
     @nodes_map = []
-    (0...@map_width).each do |x|
+    (0...@map.width).each do |x|
       @nodes_map[x] = []
-      (0...@map_height).each do |y|
-        walkable = @map[y][x] == 0
+      (0...@map.height).each do |y|
+        walkable = @map.at(x, y) == 0
         @nodes_map[x][y] = Node.new(x, y, walkable)
       end
     end
   end
 
   def draw_map
-    (0...@map_width).each do |x|
-      (0...@map_height).each do |y|
+    (0...@map.width).each do |x|
+      (0...@map.height).each do |y|
         x_pos = x * @cell_width
         y_pos = y * @cell_height
         r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
@@ -159,8 +168,8 @@ class Astar
     cx = coord[0]
     cy = coord[1]
 
-    (0...@map_width).each do |x|
-      (0...@map_height).each do |y|
+    (0...@map.width).each do |x|
+      (0...@map.height).each do |y|
         x_pos = x * @cell_width
         y_pos = y * @cell_height
         r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
@@ -174,16 +183,13 @@ class Astar
   end
 
   def handle_mouse_click ev
-    map_point = get_map_position_from_screen ev.pos
+    map_point = get_map_position_from_screen(ev.pos)
     unless map_point.nil?
-      ix = map_point[0]
-      iy = map_point[1]
-
-      val = @map[iy][ix]
-      if val == 1
-        @map[iy][ix] = 0
+      ix, iy = map_point
+      if @map.at(ix, iy) == 1
+        @map.set(ix, iy, 0)
       else
-        @map[iy][ix] = 1
+        @map.set(ix, iy, 1)
       end
       create_nodes_map
       @mypath = find_path
