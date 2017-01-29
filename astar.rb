@@ -4,14 +4,17 @@ require_relative 'field'
 
 include Rubygame
 
+class Point < Struct.new(:x, :y)
+end
+
 class Astar
   BG_COLOR = 'white'
 
   def initialize
     @map = Board.new(10, 10)
 
-    @start_point = [0,2]
-    @end_point = [4, 8]
+    @start_point = Point.new(0, 2)
+    @end_point = Point.new(4, 8)
 
     reset_parents_and_costs
     @mypath = find_path
@@ -29,10 +32,10 @@ class Astar
     open_list = []
     close_list = []
 
-    start_node = @map.at(@start_point[0], @start_point[1])
-    start_node.calc_cost(@end_point[0], @end_point[1])
+    start_node = @map.at(@start_point.x, @start_point.y)
+    start_node.calc_cost(@end_point.x, @end_point.y)
 
-    end_node = @map.at(@end_point[0], @end_point[1])
+    end_node = @map.at(@end_point.x, @end_point.y)
 
     open_list << start_node
 
@@ -49,7 +52,7 @@ class Astar
       open_list.delete(p)
       close_list << p
 
-      break if p.x == @end_point[0] && p.y == @end_point[1]
+      break if p.x == @end_point.x && p.y == @end_point.y
 
 
       field = @map.at(p.x, p.y)
@@ -59,7 +62,7 @@ class Astar
         if m.walkable? and not close_list.include?(m)
           unless open_list.include?(m)
             m.parent = p
-            m.calc_cost(@end_point[0], @end_point[1])
+            m.calc_cost(@end_point.x, @end_point.y)
             open_list << m
           end
         end
