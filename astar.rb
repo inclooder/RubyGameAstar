@@ -1,27 +1,7 @@
-
-require "rubygems"
 require "rubygame"
+require_relative 'node'
 
 include Rubygame
-
-
-class Node
-  attr_accessor :x, :y, :parent, :walkable, :cost
-  def initialize(x,y, walkable)
-    @x = x
-    @y = y
-    @walkable = walkable
-    @parent = nil
-    @cost = nil
-  end
-
-
-  def calc_cost(dest_x, dest_y)
-    @cost = Math.hypot(x-dest_x, y-dest_y).round(2)
-  end
-end
-
-
 
 class Game
   BG_COLOR = 'white'
@@ -29,7 +9,7 @@ class Game
   def initialize
     @map_width = 40
     @map_height = 40
-    @map=[]
+    @map = []
 
     (0...@map_width).each do |x|
       (0...@map_height).each do |y|
@@ -47,9 +27,9 @@ class Game
     @mypath = find_path
 
     @screen = Screen.new [800,600], 0, [HWSURFACE, DOUBLEBUF]
-    @cell_width = @screen.size[0]/@map_width
-    @cell_height = @screen.size[1]/@map_height
-    @crad = @cell_height/2
+    @cell_width = @screen.size[0] / @map_width
+    @cell_height = @screen.size[1] / @map_height
+    @crad = @cell_height / 2
     @queue = EventQueue.new
     @clock = Clock.new
     @clock.target_framerate = 30
@@ -133,8 +113,6 @@ class Game
     return path
   end
 
-
-
   def create_nodes_map
     @nodes_map = []
     (0...@map_width).each do |x|
@@ -145,9 +123,7 @@ class Game
         @nodes_map[x][y] = Node.new(x, y, walkable)
       end
     end
-
   end
-
 
   def draw_map
     (0...@map_width).each do |x|
