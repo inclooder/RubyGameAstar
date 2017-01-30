@@ -1,13 +1,18 @@
 require "rubygame"
 require_relative 'board'
 require_relative 'field'
-
-include Rubygame
+require_relative 'engine'
+require_relative 'rubygame_engine'
+require_relative 'exit_event'
+require_relative 'mouse_event'
 
 class Astar
   BG_COLOR = 'white'
+  WIDTH = 600
+  HEIGHT = 600
 
   def initialize
+    @engine = Engine.new(RubygameEngine.new)
     @map = Board.new(10, 10)
 
     @start_point = @map.at(0, 2)
@@ -16,13 +21,10 @@ class Astar
     reset_parents_and_costs
     @path = find_path
 
-    @screen = Screen.new [600,600], 0, [HWSURFACE, DOUBLEBUF]
-    @cell_width = @screen.size[0] / @map.width
-    @cell_height = @screen.size[1] / @map.height
+    @engine.create_window(WIDTH, HEIGHT)
+    @cell_width = WIDTH / @map.width
+    @cell_height = HEIGHT / @map.height
     @crad = @cell_height / 2
-    @queue = EventQueue.new
-    @clock = Clock.new
-    @clock.target_framerate = 30
   end
 
   def find_path
@@ -86,21 +88,21 @@ class Astar
       (0...@map.height).each do |y|
         x_pos = x * @cell_width
         y_pos = y * @cell_height
-        r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
+        r = Rubygame::Rect.new(x_pos, y_pos, @cell_width, @cell_height)
         node = @map.at(x, y)
         c = r.center()
         unless node.walkable?
-          @screen.draw_box_s(r.topleft, r.bottomright, 'gray')
+          @engine.fill_box(r.topleft, r.bottomright, 'gray')
         end
         if(@path.include? node)
-          @screen.draw_circle_s(c, @crad, 'orange')
+          @engine.fill_circle(c, @crad, 'orange')
         end
       end
     end
   end
 
   def draw_background
-    @screen.fill BG_COLOR
+    @engine.fill BG_COLOR
   end
 
 
@@ -108,18 +110,15 @@ class Astar
     loop do
       update
       draw
-      @clock.tick
     end
   end
 
-  def get_map_position_from_screen coord
-    cx, cy = coord
-
+  def get_map_position_from_screen(cx, cy)
     (0...@map.width).each do |x|
       (0...@map.height).each do |y|
         x_pos = x * @cell_width
         y_pos = y * @cell_height
-        r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
+        r = Rubygame::Rect.new(x_pos, y_pos, @cell_width, @cell_height)
         if r.collide_point? cx, cy
           return [x, y]
         end
@@ -130,7 +129,7 @@ class Astar
   end
 
   def handle_mouse_click ev
-    map_point = get_map_position_from_screen(ev.pos)
+    map_point = get_map_position_from_screen(ev.x, ev.y)
     unless map_point.nil?
       ix, iy = map_point
       @map.at(ix, iy).toggle_walkable
@@ -140,13 +139,14 @@ class Astar
   end
 
   def update
-    @queue.each do |ev|
-      case ev
-      when QuitEvent
-        Rubygame.quit
-        exit
-      when MouseDownEvent
-        handle_mouse_click ev
+    event = @engine.shift_event
+    case event
+    when ExitEvent
+      @engine.exit
+      exit
+    when MouseEvent
+      if event.state == :down
+        handle_mouse_click event
       end
     end
   end
@@ -154,7 +154,7 @@ class Astar
   def draw
     draw_background
     draw_map
-    @screen.update
+    @engine.update_window
   end
 end
 
