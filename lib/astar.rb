@@ -1,12 +1,10 @@
-require "rubygame"
 require_relative 'board'
 require_relative 'field'
-require_relative 'engine'
-require_relative 'rubygame_engine'
-require_relative 'exit_event'
-require_relative 'mouse_event'
+require_relative 'engine/all'
 
 class Astar
+  include Engine
+
   BG_COLOR = 'white'
   WIDTH = 600
   HEIGHT = 600
@@ -88,7 +86,7 @@ class Astar
       (0...@map.height).each do |y|
         x_pos = x * @cell_width
         y_pos = y * @cell_height
-        r = Rubygame::Rect.new(x_pos, y_pos, @cell_width, @cell_height)
+        r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
         node = @map.at(x, y)
         c = r.center()
         unless node.walkable?
@@ -118,7 +116,7 @@ class Astar
       (0...@map.height).each do |y|
         x_pos = x * @cell_width
         y_pos = y * @cell_height
-        r = Rubygame::Rect.new(x_pos, y_pos, @cell_width, @cell_height)
+        r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
         if r.collide_point? cx, cy
           return [x, y]
         end
