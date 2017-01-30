@@ -157,6 +157,3 @@ class Astar
     @engine.update_window
   end
 end
-
-game = Astar.new
-game.run
