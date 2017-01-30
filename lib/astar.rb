@@ -82,19 +82,17 @@ class Astar
   end
 
   def draw_map
-    (0...@map.width).each do |x|
-      (0...@map.height).each do |y|
-        x_pos = x * @cell_width
-        y_pos = y * @cell_height
-        r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
-        node = @map.at(x, y)
-        c = r.center()
-        unless node.walkable?
-          @engine.fill_box(r.topleft, r.bottomright, 'gray')
-        end
-        if(@path.include? node)
-          @engine.fill_circle(c, @crad, 'orange')
-        end
+    @map.each_coord do |x, y|
+      x_pos = x * @cell_width
+      y_pos = y * @cell_height
+      r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
+      node = @map.at(x, y)
+      c = r.center()
+      unless node.walkable?
+        @engine.fill_box(r.topleft, r.bottomright, 'gray')
+      end
+      if(@path.include? node)
+        @engine.fill_circle(c, @crad, 'orange')
       end
     end
   end
@@ -102,7 +100,6 @@ class Astar
   def draw_background
     @engine.fill BG_COLOR
   end
-
 
   def run
     loop do
@@ -112,17 +109,14 @@ class Astar
   end
 
   def get_map_position_from_screen(cx, cy)
-    (0...@map.width).each do |x|
-      (0...@map.height).each do |y|
-        x_pos = x * @cell_width
-        y_pos = y * @cell_height
-        r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
-        if r.collide_point? cx, cy
-          return [x, y]
-        end
+    @map.each_coord do |x, y|
+      x_pos = x * @cell_width
+      y_pos = y * @cell_height
+      r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
+      if r.collide_point? cx, cy
+        return [x, y]
       end
     end
-
     return nil
   end
 
