@@ -1,6 +1,6 @@
 module Engine
   class Engine
-    def initialize(implementation, updater, drawer)
+    def initialize(implementation, updater:, drawer:)
       @impl = implementation
       @updater = updater
       @drawer = drawer

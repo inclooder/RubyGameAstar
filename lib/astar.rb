@@ -10,7 +10,7 @@ class Astar
   HEIGHT = 600
 
   def initialize
-    @engine = Engine.new(GosuEngine.new, self, self)
+    @engine = Engine.new(GosuEngine.new, updater: self, drawer: self)
     @board = Board.new(10, 10)
 
     @start_point = @board.at(1, 2)
@@ -89,7 +89,7 @@ class Astar
       node = @board.at(x, y)
       c = r.center()
       unless node.walkable?
-        @engine.fill_box(r.topleft, r.bottomright, 'gray')
+        @engine.fill_box(r, 'gray')
       end
       if(@path.include? node)
         @engine.fill_circle(c, @crad, 'orange')

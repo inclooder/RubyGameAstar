@@ -5,7 +5,8 @@ module Engine
   class GosuEngine
     COLORS = {
       'gray' => Gosu::Color::GRAY,
-      'white' => Gosu::Color::WHITE
+      'white' => Gosu::Color::WHITE,
+      'orange' => Gosu::Color.new(255, 255, 165, 0)
     }
     class Window < Gosu::Window
       def initialize(width, height, updater, drawer)
@@ -36,13 +37,22 @@ module Engine
     def update_window
     end
 
-    def fill_box(topleft, bottomright, color)
+    def fill_box(rect, color)
+      color = COLORS[color]
+      @window.draw_quad(rect.topleft.x, rect.topleft.y, color, 
+                        rect.topright.x, rect.topright.y, color, 
+                        rect.bottomright.x, rect.bottomright.y, color, 
+                        rect.bottomleft.x, rect.bottomleft.y, color)
     end
 
     def outline_box(topleft, bottomright, color)
     end
 
     def fill_circle(center, radius, color)
+      #TODO: change this to actual circle
+      rect = Rect.new(0, 0, 60, 60)
+      rect.center_at(center)
+      fill_box(rect, color)
     end
 
     def fill(color)
