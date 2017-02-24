@@ -1,7 +1,8 @@
 # A sample Gemfile
 source "https://rubygems.org"
-ruby '2.0.0'
+ruby '2.4.0'
 
-gem 'rubygame'
+gem 'gosu'
 gem 'byebug'
 gem 'rspec'
+

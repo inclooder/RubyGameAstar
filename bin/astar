@@ -4,10 +4,3 @@ require_relative '../lib/astar'
 
 game = Astar.new
 game.run
-
-
-
-
-
-
-

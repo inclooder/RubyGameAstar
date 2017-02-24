@@ -10,19 +10,19 @@ class Astar
   HEIGHT = 600
 
   def initialize
-    @engine = Engine.new(RubygameEngine.new)
-    @map = Board.new(10, 10)
+    @engine = Engine.new(GosuEngine.new, self, self)
+    @board = Board.new(10, 10)
 
-    @start_point = @map.at(0, 2)
-    @end_point = @map.at(4, 8)
+    @start_point = @board.at(1, 2)
+    @end_point = @board.at(4, 8)
 
     reset_parents_and_costs
     @path = find_path
 
-    @engine.create_window(WIDTH, HEIGHT)
-    @cell_width = WIDTH / @map.width
-    @cell_height = HEIGHT / @map.height
+    @cell_width = WIDTH / @board.width
+    @cell_height = HEIGHT / @board.height
     @crad = @cell_height / 2
+    @engine.create_window(WIDTH, HEIGHT)
   end
 
   def find_path
@@ -49,8 +49,8 @@ class Astar
       break if p.x == @end_point.x && p.y == @end_point.y
 
 
-      field = @map.at(p.x, p.y)
-      avil_moves = @map.neighbors_for(field)
+      field = @board.at(p.x, p.y)
+      avil_moves = @board.neighbors_for(field)
 
       avil_moves.each do |m|
         if m.walkable? and not close_list.include?(m)
@@ -75,18 +75,18 @@ class Astar
   end
 
   def reset_parents_and_costs
-    @map.each_field do |field|
+    @board.each_field do |field|
       field.cost = nil
       field.parent = nil
     end
   end
 
   def draw_map
-    @map.each_coord do |x, y|
+    @board.each_coord do |x, y|
       x_pos = x * @cell_width
       y_pos = y * @cell_height
       r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
-      node = @map.at(x, y)
+      node = @board.at(x, y)
       c = r.center()
       unless node.walkable?
         @engine.fill_box(r.topleft, r.bottomright, 'gray')
@@ -101,21 +101,12 @@ class Astar
     @engine.fill BG_COLOR
   end
 
-  def run
-    loop do
-      update
-      draw
-    end
-  end
-
   def get_map_position_from_screen(cx, cy)
-    @map.each_coord do |x, y|
+    @board.each_coord do |x, y|
       x_pos = x * @cell_width
       y_pos = y * @cell_height
       r = Rect.new(x_pos, y_pos, @cell_width, @cell_height)
-      if r.collide_point? cx, cy
-        return [x, y]
-      end
+      return [x, y] if r.collide_point? cx, cy
     end
     return nil
   end
@@ -124,7 +115,7 @@ class Astar
     map_point = get_map_position_from_screen(ev.x, ev.y)
     unless map_point.nil?
       ix, iy = map_point
-      @map.at(ix, iy).toggle_walkable
+      @board.at(ix, iy).toggle_walkable
       reset_parents_and_costs
       @path = find_path
     end

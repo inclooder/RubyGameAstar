@@ -1,11 +1,13 @@
 module Engine
   class Engine
-    def initialize(implementation)
+    def initialize(implementation, updater, drawer)
       @impl = implementation
+      @updater = updater
+      @drawer = drawer
     end
 
     def create_window(width, height)
-      @impl.create_window(width, height)
+      @impl.create_window(width, height, @updater, @drawer)
     end
 
     def update_window
